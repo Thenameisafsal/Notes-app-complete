@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "319783963628",
+    "project_id": "notes-d6f4b",
+    "storage_bucket": "notes-d6f4b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:319783963628:android:38a5504dc2c78d952f8ec9",
+        "android_client_info": {
+          "package_name": "xyz.codesynth.notes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-8dimxgKvjUOKWhMwrC8kogkWrHD6Wqk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
