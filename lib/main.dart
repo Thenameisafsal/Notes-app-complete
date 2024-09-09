@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/views/login_view.dart';
+import 'package:notes/views/register_view.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 void main(){
@@ -31,7 +32,7 @@ class HomePage extends StatelessWidget {
             }
         }
       ),
-      TextButton(onPressed:(){Navigator.of(context).push(MaterialPageRoute(builder: (context) =>const  LoginView()));}, child: const Text('press me'))
+      TextButton(onPressed:(){Navigator.of(context).push(MaterialPageRoute(builder: (context) =>const  RegisterView()));}, child: const Text('press me'))
       ])
     );
   }
