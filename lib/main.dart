@@ -14,25 +14,29 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context){
-    return Column(children:[FutureBuilder(
-      future: Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
-      builder: (context, snapshot){
-            switch(snapshot.connectionState){
-              case ConnectionState.done:
-                final user = FirebaseAuth.instance.currentUser;
-                if(user?.emailVerified ?? false){
-                      return const Text("verified user"); // all good to go
-                }
-                else{
-                  return const VerifyEmailView(); // return verify email since not verified yet
-                }
-              default:
-                return const Text("error, try again later.");
-            }
-        }
+    return Scaffold(
+      appBar: AppBar(title: const Text("Home")),
+      body: Column(children:[FutureBuilder(
+        future: Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
+        builder: (context, snapshot){
+              switch(snapshot.connectionState){
+                case ConnectionState.done:
+                  // final user = FirebaseAuth.instance.currentUser;
+                  // if(user?.emailVerified ?? false){
+                  //       return const Text("verified user"); // all good to go
+                  // }
+                  // else{
+                  //   return const VerifyEmailView(); // return verify email since not verified yet
+                  // }
+                  return const LoginView();
+                default:
+                  return const Text("Please wait, loading.");
+              }
+          }
+        ),
+        // TextButton(onPressed:(){Navigator.of(context).push(MaterialPageRoute(builder: (context) =>const  VerifyEmailView()));}, child: const Text('press me'))
+        ]
       ),
-      // TextButton(onPressed:(){Navigator.of(context).push(MaterialPageRoute(builder: (context) =>const  VerifyEmailView()));}, child: const Text('press me'))
-      ]
     );
   }
 }
