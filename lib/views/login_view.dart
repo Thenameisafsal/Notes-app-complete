@@ -29,9 +29,9 @@ class _LoginViewState extends State<LoginView> {
   }
   @override
   Widget build(BuildContext context){
-    return /*Scaffold(
+    return Scaffold(
       appBar: AppBar(title:const Text("Login")),
-      body: */Column(
+      body: Column(
         children:[
             TextField(
             controller: _email, 
@@ -53,16 +53,12 @@ class _LoginViewState extends State<LoginView> {
               }, child: const Text('Login')),
               TextButton(
                 onPressed:() => {
-                  Navigator.of(context).push(MaterialPageRoute(builder:(context){
-                        return const RegisterView(); // navigate to register page by pushing it to stack
-                        }
-                      )
-                    )
+                  Navigator.of(context).pushNamedAndRemoveUntil('/register/', (route) => false)
                   },
                 child: const Text("Don't have an account? Register Now!"),
                 )
               ]
-            );
-    // );
-        }
+            )
+        );
+      }                
   }

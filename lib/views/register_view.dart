@@ -30,7 +30,7 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title: const Text("register")),
+      appBar: AppBar(title: const Text("Register")),
       body: Column(
         children:[
             TextField(
@@ -53,10 +53,10 @@ class _RegisterViewState extends State<RegisterView> {
               await user?.sendEmailVerification();
               print(userCredentials);
               }, child: const Text('Register')),
-              TextButton(
-                  onPressed: () => {Navigator.of(context).pop()} , // go back to the login page by popping the stack
-                  child: const Text("Already have an account? Log in."),
-              )
+              TextButton(onPressed: (){
+                Navigator.of(context).pushNamedAndRemoveUntil('/login/', (route) => false);
+              },
+               child: const Text("Login using an existing account."))
               ]
       )
     );

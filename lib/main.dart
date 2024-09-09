@@ -1,11 +1,20 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/views/login_view.dart';
+import 'package:notes/views/register_view.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 void main(){
-  runApp(const MaterialApp(
-    home: HomePage()
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MaterialApp(
+    title:  "Notes App",
+    theme: ThemeData(primarySwatch: Colors.blue),
+    home: const  HomePage(),
+    // named routes
+    routes: {
+      '/login/': (context) => const LoginView(),
+      '/register/': (context) => const RegisterView()
+    }
   ));
 }
 
@@ -14,9 +23,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context){
-    return Scaffold(
-      appBar: AppBar(title: const Text("Home")),
-      body: Column(children:[FutureBuilder(
+    return FutureBuilder(
         future: Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
         builder: (context, snapshot){
               switch(snapshot.connectionState){
@@ -30,53 +37,19 @@ class HomePage extends StatelessWidget {
                   // }
                   return const LoginView();
                 default:
-                  return const Text("Please wait, loading.");
+                  // return const Text("Please wait, loading.");
+                  return const CircularProgressIndicator(); // loading animation
               }
           }
-        ),
-        // TextButton(onPressed:(){Navigator.of(context).push(MaterialPageRoute(builder: (context) =>const  VerifyEmailView()));}, child: const Text('press me'))
-        ]
-      ),
-    );
-  }
-}
-
-class VerifyEmailView extends StatefulWidget {
-  const VerifyEmailView({super.key});
-
-  @override
-  State<VerifyEmailView> createState() => _VerifyEmailViewState();
-}
-
-class _VerifyEmailViewState extends State<VerifyEmailView> {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-        children: [
-          // TextButton(onPressed: (){
-          //       Navigator.of(context).push(
-          //         MaterialPageRoute(builder: (context){return const LoginView();}
-          //         )
-          //       );
-          //     },
-          //   child: const Text("login here")
-          // ),
-          const Text("Verify email here"),
-          // verify the user by invoking sendEmailVerification()
-          TextButton(onPressed: () async{
-                final userCredentials = await FirebaseAuth.instance.signInWithEmailAndPassword(email: "thenameisafsalahamad@gmail.com", password: "Who@re123");
-                final user = FirebaseAuth.instance.currentUser;
-                print(userCredentials);
-                await user?.sendEmailVerification();
-                if(user!=null){
-                  if(user.emailVerified) {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) {return const LoginView();}));
-                  } // if the user has the email verified, we need to ask him to login because it won't be updated in the app just because he has verified
-                }
-            }, 
-            child: const Text("Verify email here")
-            )
-          ]
         );
   }
 }
+
+
+// list of changes made:
+// implemented named routes
+// linked login and register views using the named routes -> use navigator.of(context).pushNamedAndRemoveUntil(named_route,(route)=>false)
+// remove scaffold from home page as login page already has a scaffold and it is not a good idea to embed a scaffold on a scaffold
+// add the scaffold to the verifyemail view instead
+// circular progress indicator
+// moved the verifyEmailView into its own file
