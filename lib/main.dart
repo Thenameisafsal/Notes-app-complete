@@ -14,25 +14,25 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context){
-    return Scaffold(
-    appBar: AppBar( title: const Text('notes app'),),
-    body: Column(children:[FutureBuilder(
+    return Column(children:[FutureBuilder(
       future: Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
       builder: (context, snapshot){
             switch(snapshot.connectionState){
               case ConnectionState.done:
                 final user = FirebaseAuth.instance.currentUser;
                 if(user?.emailVerified ?? false){
-                      print("verified user");
+                      return const Text("verified user"); // all good to go
                 }
-                return const Text("done");
+                else{
+                  return const VerifyEmailView(); // return verify email since not verified yet
+                }
               default:
-                return const Text("error");
+                return const Text("error, try again later.");
             }
         }
       ),
-      TextButton(onPressed:(){Navigator.of(context).push(MaterialPageRoute(builder: (context) =>const  VerifyEmailView()));}, child: const Text('press me'))
-      ])
+      // TextButton(onPressed:(){Navigator.of(context).push(MaterialPageRoute(builder: (context) =>const  VerifyEmailView()));}, child: const Text('press me'))
+      ]
     );
   }
 }
@@ -47,19 +47,18 @@ class VerifyEmailView extends StatefulWidget {
 class _VerifyEmailViewState extends State<VerifyEmailView> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Verify email"),),
-      body: Center(child: Column(
+    return Column(
         children: [
-          TextButton(onPressed: (){
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context){return const LoginView();}
-                  )
-                );
-              },
-            child: const Text("login here")
-          ),
+          // TextButton(onPressed: (){
+          //       Navigator.of(context).push(
+          //         MaterialPageRoute(builder: (context){return const LoginView();}
+          //         )
+          //       );
+          //     },
+          //   child: const Text("login here")
+          // ),
           const Text("Verify email here"),
+          // verify the user by invoking sendEmailVerification()
           TextButton(onPressed: () async{
                 final userCredentials = await FirebaseAuth.instance.signInWithEmailAndPassword(email: "thenameisafsalahamad@gmail.com", password: "Who@re123");
                 final user = FirebaseAuth.instance.currentUser;
@@ -69,8 +68,6 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
             child: const Text("Verify email here")
             )
           ]
-        )
-      )
-    );
+        );
   }
 }
