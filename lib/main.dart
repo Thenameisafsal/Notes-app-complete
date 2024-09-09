@@ -64,6 +64,11 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
                 final user = FirebaseAuth.instance.currentUser;
                 print(userCredentials);
                 await user?.sendEmailVerification();
+                if(user!=null){
+                  if(user.emailVerified) {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) {return const LoginView();}));
+                  } // if the user has the email verified, we need to ask him to login because it won't be updated in the app just because he has verified
+                }
             }, 
             child: const Text("Verify email here")
             )
