@@ -16,18 +16,37 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context){
     return Scaffold(
     appBar: AppBar( title: const Text('notes app'),),
-    body: FutureBuilder(
+    body: Column(children:[FutureBuilder(
       future: Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
       builder: (context, snapshot){
             switch(snapshot.connectionState){
               case ConnectionState.done:
-                print(FirebaseAuth.instance.currentUser);
+                final user = FirebaseAuth.instance.currentUser;
+                if(user?.emailVerified ?? false){
+                      print("verified user");
+                }
                 return const Text("done");
               default:
                 return const Text("error");
             }
         }
-      )
+      ),
+      TextButton(onPressed:(){Navigator.of(context).push(MaterialPageRoute(builder: (context) =>const  LoginView()));}, child: const Text('press me'))
+      ])
     );
+  }
+}
+
+class VerifyEmailView extends StatefulWidget {
+  const VerifyEmailView({super.key});
+
+  @override
+  State<VerifyEmailView> createState() => _VerifyEmailViewState();
+}
+
+class _VerifyEmailViewState extends State<VerifyEmailView> {
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold();
   }
 }
