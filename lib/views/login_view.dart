@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:notes/views/register_view.dart';
-import '../firebase_options.dart';
 class LoginView extends StatefulWidget{
   const LoginView({super.key});
 
