@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/views/login_view.dart';
 import 'package:notes/views/register_view.dart';
+import 'package:notes/views/verify_email_view.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 void main(){
@@ -28,14 +29,18 @@ class HomePage extends StatelessWidget {
         builder: (context, snapshot){
               switch(snapshot.connectionState){
                 case ConnectionState.done:
-                  // final user = FirebaseAuth.instance.currentUser;
-                  // if(user?.emailVerified ?? false){
-                  //       return const Text("verified user"); // all good to go
-                  // }
-                  // else{
-                  //   return const VerifyEmailView(); // return verify email since not verified yet
-                  // }
-                  return const LoginView();
+                  final user = FirebaseAuth.instance.currentUser;
+                  if(user!=null){
+                    if(user.emailVerified){
+                         return const Text("You're in brother!");
+                    }
+                    else{
+                         return const VerifyEmailView();
+                    }
+                  }
+                  else{
+                    return const LoginView();
+                  }
                 default:
                   // return const Text("Please wait, loading.");
                   return const CircularProgressIndicator(); // loading animation
