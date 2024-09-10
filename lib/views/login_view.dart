@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:developer' as devtools;
+
 class LoginView extends StatefulWidget{
   const LoginView({super.key});
 
@@ -35,27 +37,38 @@ class _LoginViewState extends State<LoginView> {
             autocorrect: false,
             enableSuggestions: false,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(hintText: "Please enter you email here")),
+            decoration: const InputDecoration(hintText: "Please enter you email here"),),
             TextField(
               controller: _password, 
               obscureText: true,
             autocorrect: false,
             enableSuggestions: false,
-              decoration: const InputDecoration(hintText: "Enter your password here")),
+              decoration: const InputDecoration(hintText: "Enter your password here"),),
             TextButton(onPressed: () async { 
               final email = _email.text;
               final password = _password.text;
+              try{
               final userCredentials = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-              print(userCredentials);
-              }, child: const Text('Login')),
+              devtools.log(userCredentials.toString());
+              Navigator.of(context).pushNamedAndRemoveUntil('/notes/', (route) => false); // redirect to the notes view as usere has logged in
+              } on FirebaseAuthException catch(e) {
+                  if(e.code == 'user-not-found'){
+                    devtools.log("User is not found!");
+                  }
+                  if(e.code == 'wrong-password'){
+                    devtools.log("Password is incorrect!");
+                  }
+              }
+              },
+              child: const Text('Login'),),
               TextButton(
                 onPressed:() => {
-                  Navigator.of(context).pushNamedAndRemoveUntil('/register/', (route) => false)
+                  Navigator.of(context).pushNamedAndRemoveUntil('/register/', (route) => false),
                   },
                 child: const Text("Don't have an account? Register Now!"),
-                )
-              ]
-            )
+                ),
+              ],
+            ),
         );
       }                
   }

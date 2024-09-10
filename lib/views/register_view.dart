@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:developer' as devtools;
+
 class RegisterView extends StatefulWidget{
   const RegisterView({super.key});
 
@@ -48,7 +50,7 @@ class _RegisterViewState extends State<RegisterView> {
               final userCredentials = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
               final user = FirebaseAuth.instance.currentUser;
               await user?.sendEmailVerification();
-              print(userCredentials);
+              devtools.log(userCredentials.toString());
               }, child: const Text('Register')),
               TextButton(onPressed: (){
                 Navigator.of(context).pushNamedAndRemoveUntil('/login/', (route) => false);

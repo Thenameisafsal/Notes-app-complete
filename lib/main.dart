@@ -15,7 +15,8 @@ void main(){
     // named routes
     routes: {
       '/login/': (context) => const LoginView(),
-      '/register/': (context) => const RegisterView()
+      '/register/': (context) => const RegisterView(),
+      '/notes/': (context) => const NotesView(),
     }
   ));
 }
@@ -33,6 +34,7 @@ class HomePage extends StatelessWidget {
                   final user = FirebaseAuth.instance.currentUser;
                   if(user!=null){
                     if(user.emailVerified){
+                         devtools.log("Logged in successfully");
                          return const NotesView();
                     }
                     else{
@@ -44,11 +46,12 @@ class HomePage extends StatelessWidget {
                   }
                 default:
                   // return const Text("Please wait, loading.");
+                  devtools.log("loading");
                   return const CircularProgressIndicator(); // loading animation
               }
           }
-        );
-  }
+      );
+    }
 }
 
 
@@ -82,7 +85,7 @@ class _NotesViewState extends State<NotesView> {
               }
             },
             itemBuilder: (context) { return const [ // itembuilder will return only a list<popupmenuentry<MenuAction>>  type -> note that popupMenuItem is a subclass of popupMenuEntry as it extends popupMenuEntry
-                 PopupMenuItem(value: MenuAction.logout, child: Text("logout")) // the value passed here will be passed on to the onSelected() function defined above as the value parameter
+                 PopupMenuItem(value: MenuAction.logout, child: Text("logout")), // the value passed here will be passed on to the onSelected() function defined above as the value parameter
             ];
            }
           )
@@ -111,9 +114,9 @@ Future<bool> LogOut(BuildContext context){
                     Navigator.of(context).pop(true);
                   },
                   child: const Text("Log Out")
-                )
+                ),
               ],
             );
-      }
+      },
   ).then((value) => value ?? false); // since this is an optional future we make sure to return a future by checking for the null value return
 }
