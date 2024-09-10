@@ -32,7 +32,7 @@ class HomePage extends StatelessWidget {
                   final user = FirebaseAuth.instance.currentUser;
                   if(user!=null){
                     if(user.emailVerified){
-                         return const Text("You're in brother!");
+                         return const NotesView();
                     }
                     else{
                          return const VerifyEmailView();
@@ -51,10 +51,30 @@ class HomePage extends StatelessWidget {
 }
 
 
-// list of changes made:
-// implemented named routes
-// linked login and register views using the named routes -> use navigator.of(context).pushNamedAndRemoveUntil(named_route,(route)=>false)
-// remove scaffold from home page as login page already has a scaffold and it is not a good idea to embed a scaffold on a scaffold
-// add the scaffold to the verifyemail view instead
-// circular progress indicator
-// moved the verifyEmailView into its own file
+class NotesView extends StatefulWidget {
+  const NotesView({super.key});
+
+  @override
+  State<NotesView> createState() => _NotesViewState();
+}
+
+enum MenuAction { logout } // define the enumeration
+
+class _NotesViewState extends State<NotesView> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar:  AppBar(title: const Text("Notes UI"),
+      actions: [
+          PopupMenuButton<MenuAction>(
+            onSelected: (value) => {},
+            itemBuilder: (context) { return const [ // itembuilder will return only a list<popupmenuentry<MenuAction>>  type -> note that popupMenuItem is a subclass of popupMenuEntry as it extends popupMenuEntry
+                 PopupMenuItem(value: MenuAction.logout, child: Text("logout")) // the value passed here will be passed on to the onSelected() function defined above as the value parameter
+          ];
+          }
+          )
+      ],
+      ),
+    );
+  }
+}
