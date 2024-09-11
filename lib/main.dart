@@ -57,4 +57,27 @@ class HomePage extends StatelessWidget {
     }
 }
 
-
+Future<bool> logOut(BuildContext context){
+  return showDialog<bool>(
+        context : context,
+        builder: (context){
+        return AlertDialog(title: const Text('Logout'),
+            content: const Text("You really want to log out?"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text("Cancel")
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text("Log Out")
+                ),
+              ],
+            );
+      },
+  ).then((value) => value ?? false); // since this is an optional future we make sure to return a future by checking for the null value return
+}

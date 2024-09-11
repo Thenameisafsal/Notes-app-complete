@@ -24,7 +24,7 @@ class _NotesViewState extends State<NotesView> {
             onSelected: (value) async {
               switch(value){
                 case MenuAction.logout:
-                  final confirmation = await LogOut(context);
+                  final confirmation = await logOut(context);
                   // devtools.log(confirmation.toString()); // prints the confirmation boolean
                   if(confirmation){
                     await FirebaseAuth.instance.signOut();
@@ -45,7 +45,7 @@ class _NotesViewState extends State<NotesView> {
 }
 
 // implementation of the logout confirmation dialog
-Future<bool> LogOut(BuildContext context){
+Future<bool> logOut(BuildContext context){
   return showDialog<bool>(
         context : context,
         builder: (context){
