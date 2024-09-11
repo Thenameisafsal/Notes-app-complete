@@ -45,21 +45,35 @@ class _RegisterViewState extends State<RegisterView> {
               obscureText: true,
             autocorrect: false,
             enableSuggestions: false,
-              decoration: const InputDecoration(hintText: "Enter your password here")),
+            decoration: const InputDecoration(hintText: "Enter your password here")),
             TextButton(onPressed: () async { 
-              final email = _email.text;
-              final password = _password.text;
-              final userCredentials = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
-              final user = FirebaseAuth.instance.currentUser;
-              await user?.sendEmailVerification();
-              devtools.log(userCredentials.toString());
-              }, child: const Text('Register')),
+              try{
+                    final email = _email.text;
+                    final password = _password.text;
+                    final userCredentials = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+                    final user = FirebaseAuth.instance.currentUser;
+                    await user?.sendEmailVerification();
+                    devtools.log(userCredentials.toString());
+              } on FirebaseAuthException catch (e) {
+                    if(e.code == 'weak-password'){
+                        devtools.log("Weak password brother!");
+                    }
+                    if(e.code == 'email-already-in-use'){
+                        devtools.log("Email already in use brother!");
+                    }
+                    if(e.code == 'invalid-email'){
+                        devtools.log("Invalid email brother!");
+                    }
+                }
+              },
+              child: const Text('Register')),
+              
               TextButton(onPressed: (){
                 Navigator.of(context).pushNamedAndRemoveUntil(loginRoute, (route) => false);
               },
                child: const Text("Login using an existing account."))
-              ]
-      )
-    );
-        }
+          ]
+        )
+      );
+    }
   }
