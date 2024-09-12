@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:notes/constants/routes.dart';
 import 'package:notes/views/login_view.dart';
-import 'dart:developer' as devtools;
 
 class VerifyEmailView extends StatefulWidget {
   const VerifyEmailView({super.key});
@@ -16,20 +16,11 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
     return Scaffold(
       body: Column(
           children: [
-            // TextButton(onPressed: (){
-            //       Navigator.of(context).push(
-            //         MaterialPageRoute(builder: (context){return const LoginView();}
-            //         )
-            //       );
-            //     },
-            //   child: const Text("login here")
-            // ),
-            const Text("Verify email here"),
+            const Text("We've sent you an email, please check it to verify your account"),
+            const Text("If you didn't receive an email, please click on the button below."),
             // verify the user by invoking sendEmailVerification()
             TextButton(onPressed: () async{
-                  final userCredentials = await FirebaseAuth.instance.signInWithEmailAndPassword(email: "thenameisafsalahamad@gmail.com", password: "Who@re123");
                   final user = FirebaseAuth.instance.currentUser;
-                  devtools.log(userCredentials.toString());
                   await user?.sendEmailVerification();
                   if(user!=null){
                     if(user.emailVerified) {
@@ -37,8 +28,12 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
                     } // if the user has the email verified, we need to ask him to login because it won't be updated in the app just because he has verified
                   }
               }, 
-              child: const Text("Verify email here")
-              )
+              child: const Text("Verify")
+              ),
+              TextButton(onPressed: () async {
+                await FirebaseAuth.instance.signOut(); // sign out the user to refresh the state of user
+                Navigator.of(context).pushNamedAndRemoveUntil(registerRoute, (route)=>false); // move to the register page
+              }, child: const Text("Sign out to refresh the page"))
             ]
           ),
     );
