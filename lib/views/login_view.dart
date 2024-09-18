@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:developer' as devtools;
 import 'package:notes/utilities/showerrordialog.dart';
 import 'package:notes/constants/routes.dart';
-import 'package:notes/main.dart';
 
 class LoginView extends StatefulWidget{
   const LoginView({super.key});
@@ -53,7 +52,14 @@ class _LoginViewState extends State<LoginView> {
               try{
               final userCredentials = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
               devtools.log(userCredentials.toString());
-              Navigator.of(context).pushNamedAndRemoveUntil(notesRoute, (route) => false); // redirect to the notes view as usere has logged in
+              final user = FirebaseAuth.instance.currentUser;
+              if(user?.emailVerified ?? false){
+                Navigator.of(context).pushNamedAndRemoveUntil(notesRoute, (route) => false); // redirect to the notes view as usere has logged in
+              }
+              else{
+                await showErrorDialog(context,"We noticed you haven't verified your email yet. Please verify the email before you can proceed.");
+                Navigator.of(context).pushNamedAndRemoveUntil(verifyEmailRoute, (route) => false); // redirect to verifyEmailView if he's not registered
+              }
               } on FirebaseAuthException catch(e) {
                   devtools.log(e.code);
                   if(e.code == 'invalid-credential'){
