@@ -1,6 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/constants/routes.dart';
+import 'package:notes/services/auth/auth_service.dart';
 import 'package:notes/views/login_view.dart';
 
 class VerifyEmailView extends StatefulWidget {
@@ -20,10 +20,10 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
             const Text("If you didn't receive an email, please click on the button below."),
             // verify the user by invoking sendEmailVerification()
             TextButton(onPressed: () async{
-                  final user = FirebaseAuth.instance.currentUser;
-                  await user?.sendEmailVerification();
+                  final user = AuthService.firebase().currentUser;
+                  AuthService.firebase().sendEmailVerification();
                   if(user!=null){
-                    if(user.emailVerified) {
+                    if(user.isEmailVerified) {
                       Navigator.of(context).push(MaterialPageRoute(builder: (context) {return const LoginView();}));
                     } // if the user has the email verified, we need to ask him to login because it won't be updated in the app just because he has verified
                   }
@@ -31,7 +31,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
               child: const Text("Verify")
               ),
               TextButton(onPressed: () async {
-                await FirebaseAuth.instance.signOut(); // sign out the user to refresh the state of user
+                await AuthService.firebase().logout(); // sign out the user to refresh the state of user
                 Navigator.of(context).pushNamedAndRemoveUntil(registerRoute, (route)=>false); // move to the register page
               }, child: const Text("Sign out to refresh the page"))
             ]

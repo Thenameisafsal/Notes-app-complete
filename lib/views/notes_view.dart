@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-// import 'dart:developer' as devtools;
 import 'package:notes/constants/routes.dart';
+import 'package:notes/services/auth/auth_service.dart';
 
 class NotesView extends StatefulWidget {
   const NotesView({super.key});
@@ -26,7 +25,7 @@ class _NotesViewState extends State<NotesView> {
                   final confirmation = await logOut(context);
                   // devtools.log(confirmation.toString()); // prints the confirmation boolean
                   if(confirmation){
-                    await FirebaseAuth.instance.signOut();
+                    await AuthService.firebase().logout();
                     Navigator.of(context).pushNamedAndRemoveUntil(loginRoute, (_)=> false); // move to the login page upon logout
                   }
                   break;

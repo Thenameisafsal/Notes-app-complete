@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:developer' as devtools;
+import 'package:notes/services/auth/auth_exceptions.dart';
+import 'package:notes/services/auth/auth_service.dart';
 import 'package:notes/utilities/showerrordialog.dart';
 import 'package:notes/constants/routes.dart';
 
@@ -50,31 +50,18 @@ class _RegisterViewState extends State<RegisterView> {
               try{
                     final email = _email.text;
                     final password = _password.text;
-                    final userCredentials = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
-                    final user = FirebaseAuth.instance.currentUser;
-                    await user?.sendEmailVerification();
-                    devtools.log(userCredentials.toString());
+                    final userCredentials = await AuthService.firebase().createUser(email: email, password: password);
+                    final user = AuthService.firebase().currentUser;
+                    AuthService.firebase().sendEmailVerification();
                     // after registration push the verify email view
                     Navigator.of(context).pushNamed(verifyEmailRoute);
                     // to make sure the user can go back one step in case he entered a wrong mail or something, so use pushNamed() instead of using pushNamedAndRemoveUntil()
-              } on FirebaseAuthException catch (e) {
-                    if(e.code == 'weak-password'){
-                        devtools.log("Weak password brother!");
-                        await showErrorDialog(context, 'Weak password, please enter a stronger one.');
-                    }
-                    else if(e.code == 'email-already-in-use'){
-                        devtools.log("Email already in use brother!");
-                        await showErrorDialog(context, 'The email is already in use, please login using the email or register using a new one.');
-                    }
-                    else if(e.code == 'invalid-email'){
-                        devtools.log("Invalid email brother!");
-                        await showErrorDialog(context, 'Invalid Email.');
-                    }
-                    else{
-                      await showErrorDialog(context, 'Something went wrong, ${e.code}.');
-                    }
-                } catch(e){
-                  await showErrorDialog(context, e.toString());
+              } on InvalidEmailAuthException{
+                    await showErrorDialog(context, 'invalid email');
+                } on WeakPasswordAuthException{
+                    await showErrorDialog(context, 'weak password');
+                } on GenericAuthException{
+                  await showErrorDialog(context, 'some error occurred');
                 }
               },
               child: const Text('Register')),
