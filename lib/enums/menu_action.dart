@@ -1,0 +1,1 @@
+enum MenuAction { logout } // define the enumeration
