@@ -50,7 +50,7 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try{
-              final userCredentials = await AuthService.firebase().createUser(email: email, password: password);
+              await AuthService.firebase().login(email: email, password: password);
               final user = AuthService.firebase().currentUser;
               if(user?.isEmailVerified ?? false){
                 Navigator.of(context).pushNamedAndRemoveUntil(notesRoute, (route) => false); // redirect to the notes view as usere has logged in
@@ -63,7 +63,7 @@ class _LoginViewState extends State<LoginView> {
                 await showErrorDialog(context, 'Invalid password');
               }
               on UserNotFoundAuthException{
-                await showErrorDialog(context, 'User not found');
+                await showErrorDialog(context, 'User not found with provided credentials');
               }
               on GenericAuthException{
                 await showErrorDialog(context, 'Some error has occurred');

@@ -50,7 +50,7 @@ class _RegisterViewState extends State<RegisterView> {
               try{
                     final email = _email.text;
                     final password = _password.text;
-                    final userCredentials = await AuthService.firebase().createUser(email: email, password: password);
+                    await AuthService.firebase().createUser(email: email, password: password);
                     final user = AuthService.firebase().currentUser;
                     AuthService.firebase().sendEmailVerification();
                     // after registration push the verify email view
@@ -60,8 +60,10 @@ class _RegisterViewState extends State<RegisterView> {
                     await showErrorDialog(context, 'invalid email');
                 } on WeakPasswordAuthException{
                     await showErrorDialog(context, 'weak password');
+                } on EmailAlreadyExistsAuthException{
+                    await showErrorDialog(context, 'Email already exists - try with another account.');
                 } on GenericAuthException{
-                  await showErrorDialog(context, 'some error occurred');
+                  await showErrorDialog(context, 'some error occurred - try again later.');
                 }
               },
               child: const Text('Register')),

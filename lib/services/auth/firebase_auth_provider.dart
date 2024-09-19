@@ -99,7 +99,6 @@ class FirebaseAuthProvider extends AuthProvider{
   
   @override
   Future<void> startService() {
-    // TODO: implement startService
     return Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   }
 
