@@ -49,7 +49,7 @@ void main() {
       expect(user,isNotNull); // user shouldn't be null
       expect(user!.isEmailVerified,true); // user to be verified
     });
-// note that the expect function will check for synchronous results only, if you provide asynchronous results it will fail
+// note that the expect function will check for synchronous results only, if you provide asynchronous results it will failc
     test("should be able to login after logout",() async{
       await provider.logout();
       await provider.login(email: 'email', password: 'password');
