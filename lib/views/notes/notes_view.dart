@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:notes/constants/routes.dart';
+import 'package:notes/main.dart';
 import 'package:notes/services/auth/auth_service.dart';
 import 'package:notes/services/crud/notes_service.dart';
+import 'package:notes/views/notes/notes_list_view.dart';
 
 class NotesView extends StatefulWidget {
   const NotesView({super.key});
@@ -73,18 +75,10 @@ class _NotesViewState extends State<NotesView> {
                       case ConnectionState.active:
                         if (snapshot.hasData) {
                           final allNotes = snapshot.data as List<DataBaseNote>;
-                          return ListView.builder(
-                            itemCount: allNotes.length,
-                            itemBuilder: (context, index) {
-                              final note = allNotes[index]; // get current note
-                              return ListTile( // display notes in a list view
-                                title: Text(
-                                  note.text,
-                                  maxLines: 2, // max allowed ines to display
-                                  softWrap: true,
-                                  overflow: TextOverflow.ellipsis, // make the overflow words marked with '...'
-                                ),
-                              );
+                          return NotesListView(
+                            notes: allNotes,
+                            onDeleteNote: (note) async {
+                              await _notesService.deleteNote(id: note.id);
                             },
                           );
                         } else {
@@ -101,31 +95,4 @@ class _NotesViewState extends State<NotesView> {
           }),
     );
   }
-}
-
-// implementation of the logout confirmation dialog
-Future<bool> logOut(BuildContext context) {
-  return showDialog<bool>(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text('Logout'),
-        content: const Text("You really want to log out?"),
-        actions: [
-          TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text("Cancel")),
-          TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text("Log Out")),
-        ],
-      );
-    },
-  ).then((value) =>
-      value ??
-      false); // since this is an optional future we make sure to return a future by checking for the null value return
 }
