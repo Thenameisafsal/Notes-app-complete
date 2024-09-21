@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notes/services/auth/auth_service.dart';
 import 'package:notes/services/crud/notes_service.dart';
+import 'package:notes/utilities/generics/get_arguments.dart';
 
 class NewNoteView extends StatefulWidget {
   const NewNoteView({super.key});
@@ -37,16 +38,24 @@ class _NewNoteViewState extends State<NewNoteView> {
     _textController.addListener(_textControllerListener);
   }
 
-  Future<DataBaseNote> createNote() async {
+  Future<DataBaseNote> createOrGetExisitngNote(BuildContext context) async {
+    final widgetNote = context.getArgument<DataBaseNote>();
+    // update existing note
+    if(widgetNote!=null){
+      _note = widgetNote;
+      _textController.text = widgetNote.text;
+      return widgetNote;
+    }
     final existingNote = _note;
     if (existingNote != null) {
       return existingNote;
     }
-    final user =
-        AuthService.firebase().currentUser!; // crash if user doesn't exist
+    final user = AuthService.firebase().currentUser!; // crash if user doesn't exist
     final email = user.email!;
     final owner = await _notesService.getUser(email: email); // get the owner
-    return await _notesService.createNote(owner: owner); // create the note
+    final newNote =  await _notesService.createNote(owner: owner); // create the note
+    _note = newNote;
+    return newNote;
   }
 
   void deleteNoteIfEmpty() {
@@ -81,11 +90,10 @@ class _NewNoteViewState extends State<NewNoteView> {
         title: const Text("New Note"),
       ),
       body: FutureBuilder(
-        future: createNote(),
+        future: createOrGetExisitngNote(context),
         builder: (context,snapshot){
           switch(snapshot.connectionState){
             case ConnectionState.done:
-              _note = snapshot.data;
               _setupTextControllerListener(); // start listening
               return TextField(
                 controller: _textController,

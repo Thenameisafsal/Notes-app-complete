@@ -3,6 +3,7 @@ import 'package:notes/constants/routes.dart';
 import 'package:notes/main.dart';
 import 'package:notes/services/auth/auth_service.dart';
 import 'package:notes/services/crud/notes_service.dart';
+import 'package:notes/views/notes/new_note_view.dart';
 import 'package:notes/views/notes/notes_list_view.dart';
 
 class NotesView extends StatefulWidget {
@@ -79,6 +80,9 @@ class _NotesViewState extends State<NotesView> {
                             notes: allNotes,
                             onDeleteNote: (note) async {
                               await _notesService.deleteNote(id: note.id);
+                            },
+                            onTap: (note) {
+                              Navigator.of(context).pushNamed(newNoteRoute,arguments: note);
                             },
                           );
                         } else {
