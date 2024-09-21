@@ -32,9 +32,15 @@ class _NotesViewState extends State<NotesView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:  AppBar(title: const Text("Notes UI"),
+      appBar:  AppBar(title: const Text("Your Notes"),
       actions: [
         // the logout option in the menu
+        IconButton(
+          onPressed: () {
+            Navigator.of(context).pushNamed(newNoteRoute); // move to new notes page
+          },
+         icon: const Icon(Icons.add) // add the + button
+         ),
           PopupMenuButton<MenuAction>(
             onSelected: (value) async {
               switch(value){
