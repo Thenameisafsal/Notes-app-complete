@@ -8,11 +8,17 @@ import 'package:notes/services/crud/crud_exceptions.dart';
 
 class NotesService {
   List<DataBaseNote> _notes = []; // used to cahe the notes - to improve performance by avoiding reading the entire db every single time
-  final _controller = StreamController<List<DataBaseNote>>.broadcast(); // this stream can be listened more than once - but usually it can be listened to only once
+  late final StreamController<List<DataBaseNote>> _controller;
   Stream<List<DataBaseNote>> get allNotes => _controller.stream;
   // create a singleton constructor
   static final NotesService _shared = NotesService._sharedInstance();
-  NotesService._sharedInstance();
+  NotesService._sharedInstance(){
+      _controller = StreamController<List<DataBaseNote>>.broadcast(
+        onListen: (){
+          _controller.sink.add(_notes);
+        }
+      ); 
+  }
   factory NotesService() => _shared;
   Future<DataBaseUser> getOrCreateUser({required String email}) async{
     try{

@@ -23,12 +23,6 @@ class _NotesViewState extends State<NotesView> {
   }
 
   @override
-  void dispose() {
-    _notesService.close();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -77,7 +71,25 @@ class _NotesViewState extends State<NotesView> {
                       // implicit follow through - no break b/w two cases so they follow through the next case
                       case ConnectionState.waiting:
                       case ConnectionState.active:
-                        return const Text("waiting for response.");
+                        if (snapshot.hasData) {
+                          final allNotes = snapshot.data as List<DataBaseNote>;
+                          return ListView.builder(
+                            itemCount: allNotes.length,
+                            itemBuilder: (context, index) {
+                              final note = allNotes[index]; // get current note
+                              return ListTile( // display notes in a list view
+                                title: Text(
+                                  note.text,
+                                  maxLines: 2, // max allowed ines to display
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis, // make the overflow words marked with '...'
+                                ),
+                              );
+                            },
+                          );
+                        } else {
+                          return const CircularProgressIndicator();
+                        }
                       default:
                         return const CircularProgressIndicator();
                     }
