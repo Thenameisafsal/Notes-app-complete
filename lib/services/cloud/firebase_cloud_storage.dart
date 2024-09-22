@@ -7,11 +7,18 @@ import 'package:notes/services/cloud/cloud_storage_exceptions.dart';
 class FirebaseCloudStorage {
   final notes = FirebaseFirestore.instance.collection('notes'); // get the notes
 
-  void creaetNewNote({required String ownerUserId}) async {
-    await notes.add({
+  Future<CloudNote> createNewNote({required String ownerUserId}) async {
+    final document = await notes.add({
       OwnerUserIdFieldName: ownerUserId,
       TextFieldName: '',
     });
+
+    final fetchedNote = await document.get();
+    return CloudNote(
+      ownerUserId: ownerUserId,
+      text: '',
+      documentId: fetchedNote.id,
+    );
   }
 
   Future<Iterable<CloudNote>> getNotes({required String ownerUserId}) async {
@@ -24,13 +31,7 @@ class FirebaseCloudStorage {
           .get()
           .then(
             (value) => value.docs.map(
-              (doc) {
-                return CloudNote(
-                  ownerUserId: doc.data()[OwnerUserIdFieldName] as String,
-                  text: doc.data()[TextFieldName] as String,
-                  documentId: doc.id,
-                );
-              },
+              (doc) => CloudNote.fromSnapshot(doc),
             ),
           );
     } catch (e) {
