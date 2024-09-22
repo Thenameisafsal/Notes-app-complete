@@ -1,89 +1,121 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:notes/extensions/list/filter.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart'; // used to get the documents of the application
 import 'package:sqflite/sqflite.dart';
 import 'package:notes/services/crud/crud_exceptions.dart';
 
 class NotesService {
-  List<DataBaseNote> _notes = []; // used to cahe the notes - to improve performance by avoiding reading the entire db every single time
+  DataBaseUser? _user;
+
+  List<DataBaseNote> _notes =
+      []; // used to cahe the notes - to improve performance by avoiding reading the entire db every single time
+
   late final StreamController<List<DataBaseNote>> _controller;
-  Stream<List<DataBaseNote>> get allNotes => _controller.stream;
+
+// apply the filter
+  Stream<List<DataBaseNote>> get allNotes => _controller.stream.filter((note) {
+        final currentUser = _user;
+        if (currentUser != null) {
+          return note.userId == currentUser.id; // return bool
+        } else {
+          throw UserShouldBeSetBeforeReadingNotes();
+        }
+      });
+
   // create a singleton constructor
   static final NotesService _shared = NotesService._sharedInstance();
-  NotesService._sharedInstance(){
-      _controller = StreamController<List<DataBaseNote>>.broadcast(
-        onListen: (){
-          _controller.sink.add(_notes);
-        }
-      ); 
+  NotesService._sharedInstance() {
+    _controller = StreamController<List<DataBaseNote>>.broadcast(onListen: () {
+      _controller.sink.add(_notes);
+    });
   }
+
   factory NotesService() => _shared;
-  Future<DataBaseUser> getOrCreateUser({required String email}) async{
-    try{
+
+  Future<DataBaseUser> getOrCreateUser({
+    required String email,
+    bool setAsCurrentUser = true,
+  }) async {
+    try {
       final user = await getUser(email: email);
+      if (setAsCurrentUser) {
+        _user = user;
+      }
       return user;
-    } on CouldNotFindUser{
+    } on CouldNotFindUser {
       final createdUser = await createUser(email: email);
+      if (setAsCurrentUser) {
+        _user = createdUser;
+      }
       return createdUser;
-    } catch(e){
+    } catch (e) {
       rethrow;
     }
   }
 
-  Future<void> _cacheNotes() async{
+  Future<void> _cacheNotes() async {
     final allNotes = await getallNotes();
     _notes = allNotes.toList();
     _controller.add(_notes);
   }
+
   Database? _db;
-  Database _getDataBaseOrThrow(){
+  Database _getDataBaseOrThrow() {
     final database = _db;
-    if(database == null){ throw DataBaseIsNotOpenException();}
-    else{
+    if (database == null) {
+      throw DataBaseIsNotOpenException();
+    } else {
       return database;
     }
   }
 
-  Future<void> close() async{
+  Future<void> close() async {
     final db = _db;
-    if(db==null){ throw DataBaseIsNotOpenException();}
-    else{
+    if (db == null) {
+      throw DataBaseIsNotOpenException();
+    } else {
       await db.close(); // close the db
       _db = null;
     }
   }
 
-  Future<DataBaseUser> getUser({required String email}) async{
+  Future<DataBaseUser> getUser({required String email}) async {
     await _ensureDbIsOpen();
     final db = _getDataBaseOrThrow();
-    final results = await db.query(userTable,limit:1,where: 'email = ?',whereArgs: [email.toLowerCase()]);
-    if(results.isEmpty){
+    final results = await db.query(userTable,
+        limit: 1, where: 'email = ?', whereArgs: [email.toLowerCase()]);
+    if (results.isEmpty) {
       throw CouldNotFindUser();
-    }
-    else{
+    } else {
       return DataBaseUser.fromRow(results.first);
     }
   }
 
-  Future<void> deleteUser({required String email}) async{
+  Future<void> deleteUser({required String email}) async {
     await _ensureDbIsOpen();
     final db = _getDataBaseOrThrow();
-    final deletedCount = await db.delete(userTable,where: 'email = ?', whereArgs: [email.toLowerCase()]);
-    if(deletedCount != 1){
+    final deletedCount = await db.delete(userTable,
+        where: 'email = ?', whereArgs: [email.toLowerCase()]);
+    if (deletedCount != 1) {
       throw CouldNotDeleteUserException();
     }
   }
 
-  Future<DataBaseUser> createUser({required String email}) async{
+  Future<DataBaseUser> createUser({required String email}) async {
     await _ensureDbIsOpen();
     final db = _getDataBaseOrThrow();
-    final results = await db.query(userTable, limit:1,where: 'email = ?',whereArgs: [email.toLowerCase()]); // query the userTable - limit 1 means get only 1 result - and here you're searching the email
-    if(results.isNotEmpty){
+    final results = await db
+        .query(userTable, limit: 1, where: 'email = ?', whereArgs: [
+      email.toLowerCase()
+    ]); // query the userTable - limit 1 means get only 1 result - and here you're searching the email
+    if (results.isNotEmpty) {
       throw UserAlreadyExistsException();
     }
-    final userId = await db.insert(userTable, {emailColumn: email.toLowerCase()});
+    final userId =
+        await db.insert(userTable, {emailColumn: email.toLowerCase()});
     return DataBaseUser(id: userId, email: email);
   }
 
@@ -109,19 +141,16 @@ class NotesService {
     }
   }
 
-  Future<DataBaseNote> createNote({required DataBaseUser owner}) async{
+  Future<DataBaseNote> createNote({required DataBaseUser owner}) async {
     await _ensureDbIsOpen();
     final db = _getDataBaseOrThrow();
     final dbUser = await getUser(email: owner.email); // get the current user
-    if(dbUser != owner){
+    if (dbUser != owner) {
       throw CouldNotFindUser(); // this case indicates that unauthorized access has occurred
     }
     const text = '';
-    final noteId = await db.insert(noteTable, {
-      userIdColumn: owner.id,
-      textColumn: text
-    }
-  );
+    final noteId =
+        await db.insert(noteTable, {userIdColumn: owner.id, textColumn: text});
 
     final note = DataBaseNote(id: noteId, userId: owner.id, text: text);
     _notes.add(note); // save to cache
@@ -129,21 +158,21 @@ class NotesService {
     return note;
   }
 
-  Future<void> deleteNote({required int id}) async{
+  Future<void> deleteNote({required int id}) async {
     await _ensureDbIsOpen();
     final db = _getDataBaseOrThrow();
-    final deleteCount = await db.delete(noteTable,where: 'id = ?',whereArgs: [id]);
-    if(deleteCount==0){
+    final deleteCount =
+        await db.delete(noteTable, where: 'id = ?', whereArgs: [id]);
+    if (deleteCount == 0) {
       throw CouldNotDelete();
-    }
-    else{
+    } else {
       // remove from cache
       _notes.removeWhere((note) => note.id == id);
       _controller.add(_notes);
     }
   }
 
-  Future<int> deleteAllNotes() async{
+  Future<int> deleteAllNotes() async {
     await _ensureDbIsOpen();
     final db = _getDataBaseOrThrow();
     final deletionCount = await db.delete(noteTable); // deletes everything
@@ -153,11 +182,12 @@ class NotesService {
     return deletionCount;
   }
 
-  Future<DataBaseNote> getNote({required int id}) async{
+  Future<DataBaseNote> getNote({required int id}) async {
     await _ensureDbIsOpen();
     final db = _getDataBaseOrThrow();
-    final notes = await db.query(noteTable,limit:1,where: 'id = ?',whereArgs: [id]);
-    if(notes.isEmpty){
+    final notes =
+        await db.query(noteTable, limit: 1, where: 'id = ?', whereArgs: [id]);
+    if (notes.isEmpty) {
       throw CouldNotFindNotes();
     }
     final note = DataBaseNote.fromRow(notes.first);
@@ -167,23 +197,32 @@ class NotesService {
     return note;
   }
 
-  Future<Iterable<DataBaseNote>> getallNotes() async{
+  Future<Iterable<DataBaseNote>> getallNotes() async {
     await _ensureDbIsOpen();
     final db = _getDataBaseOrThrow();
-    final notes = await db.query(noteTable,);
-    final result = notes.map((noteRow) => DataBaseNote.fromRow(noteRow)); // convert the map<String,Object?> to an iterable
+    final notes = await db.query(
+      noteTable,
+    );
+    final result = notes.map((noteRow) => DataBaseNote.fromRow(
+        noteRow)); // convert the map<String,Object?> to an iterable
     return result;
   }
 
-  Future<DataBaseNote> updateNote({required DataBaseNote note, required String text}) async{
+  Future<DataBaseNote> updateNote(
+      {required DataBaseNote note, required String text}) async {
     await _ensureDbIsOpen();
     final db = _getDataBaseOrThrow();
-    await getNote(id: note.id); // make sure the query note exists - if it doesn't an exception is thrown
-    final updatesCount = await db.update(noteTable, {textColumn: text});
-    if(updatesCount == 0){
+    await getNote(
+        id: note
+            .id); // make sure the query note exists - if it doesn't an exception is thrown
+    final updatesCount = await db.update(noteTable, {textColumn: text},
+        where: 'id = ?',
+        whereArgs: [
+          note.id
+        ]); // fix the bug where the db simply updates all rows of the database during an update
+    if (updatesCount == 0) {
       throw CouldNotUpdate();
-    }
-    else{
+    } else {
       final updatedNote = await getNote(id: note.id); // return the query note
       _notes.removeWhere((note) => note.id == updatedNote.id);
       _notes.add(updatedNote); // update cache
@@ -192,10 +231,10 @@ class NotesService {
     }
   }
 
-  Future<void> _ensureDbIsOpen() async{
-    try{
+  Future<void> _ensureDbIsOpen() async {
+    try {
       await open();
-    } on DataBaseAlreadyOpenException{
+    } on DataBaseAlreadyOpenException {
       // you're good to go
     }
   }
