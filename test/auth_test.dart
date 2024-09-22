@@ -33,28 +33,32 @@ void main() {
         timeout:
             const Timeout(Duration(seconds: 2))); // set timeout to 2 seconds
 
-    test("create user should delegate to login function",() async{
-      final badUser = provider.createUser(email:"foo@bar.com",password:"somepassword");
-      expect(badUser,throwsA(const TypeMatcher<UserNotFoundAuthException>()));
-      final badPassword = provider.createUser(email: "someone@gmail.com", password: "foobarbaz");
-      expect(badPassword,throwsA(const TypeMatcher<InvalidPasswordAuthException>()));
+    test("create user should delegate to login function", () async {
+      final badUser =
+          provider.createUser(email: "foo@bar.com", password: "somepassword");
+      expect(badUser, throwsA(const TypeMatcher<UserNotFoundAuthException>()));
+      final badPassword = provider.createUser(
+          email: "someone@gmail.com", password: "foobarbaz");
+      expect(badPassword,
+          throwsA(const TypeMatcher<InvalidPasswordAuthException>()));
       final user = await provider.createUser(email: "bar", password: "baz");
-      expect(provider.currentUser,user); // make sure current user is the user who logged in
-      expect(user.isEmailVerified,false); // user should not be verified now
+      expect(provider.currentUser,
+          user); // make sure current user is the user who logged in
+      expect(user.isEmailVerified, false); // user should not be verified now
     });
 
-    test("user should be able to verify after login",() async{
+    test("user should be able to verify after login", () async {
       await provider.sendEmailVerification();
       final user = provider.currentUser;
-      expect(user,isNotNull); // user shouldn't be null
-      expect(user!.isEmailVerified,true); // user to be verified
+      expect(user, isNotNull); // user shouldn't be null
+      expect(user!.isEmailVerified, true); // user to be verified
     });
 // note that the expect function will check for synchronous results only, if you provide asynchronous results it will failc
-    test("should be able to login after logout",() async{
+    test("should be able to login after logout", () async {
       await provider.logout();
       await provider.login(email: 'email', password: 'password');
       final user = provider.currentUser;
-      expect(user,isNotNull); // if user is logged in he won't be null
+      expect(user, isNotNull); // if user is logged in he won't be null
     });
   });
 }
@@ -69,8 +73,8 @@ class MockAuthProvider implements AuthProvider {
   Future<AuthUser> createUser(
       {required String email, required String password}) async {
     if (!isInitialized) throw NotInitializedException();
-    if(email == "foo@bar.com") throw UserNotFoundAuthException();
-    if(password == "foobarbaz") throw InvalidPasswordAuthException();
+    if (email == "foo@bar.com") throw UserNotFoundAuthException();
+    if (password == "foobarbaz") throw InvalidPasswordAuthException();
     await Future.delayed(const Duration(
         seconds: 2)); // create an effect to mimic the backend connection time
     return login(
@@ -83,9 +87,9 @@ class MockAuthProvider implements AuthProvider {
   @override
   Future<AuthUser> login({required String email, required String password}) {
     if (!isInitialized) throw NotInitializedException();
-    if(email == "foo@bar.com") throw UserNotFoundAuthException();
-    if(password == "foobarbaz") throw InvalidPasswordAuthException();
-    final user = AuthUser(email: email,isEmailVerified: false);
+    if (email == "foo@bar.com") throw UserNotFoundAuthException();
+    if (password == "foobarbaz") throw InvalidPasswordAuthException();
+    final user = AuthUser(id: 'my_id', email: email, isEmailVerified: false);
     _user = user;
     return Future.value(user);
   }
@@ -103,7 +107,10 @@ class MockAuthProvider implements AuthProvider {
     if (!isInitialized) throw NotInitializedException();
     final user = _user;
     if (user == null) throw UserNotFoundAuthException();
-    final newUser = AuthUser(email:user.email,isEmailVerified: true); // verify the guy
+    final newUser = AuthUser(
+        id: 'my_id',
+        email: user.email,
+        isEmailVerified: true); // verify the guy
     _user = newUser;
   }
 

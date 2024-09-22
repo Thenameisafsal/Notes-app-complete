@@ -3,7 +3,6 @@ import 'package:notes/constants/routes.dart';
 import 'package:notes/main.dart';
 import 'package:notes/services/auth/auth_service.dart';
 import 'package:notes/services/crud/notes_service.dart';
-import 'package:notes/views/notes/new_note_view.dart';
 import 'package:notes/views/notes/notes_list_view.dart';
 
 class NotesView extends StatefulWidget {
@@ -17,7 +16,7 @@ enum MenuAction { logout } // define the enumeration
 
 class _NotesViewState extends State<NotesView> {
   late final NotesService _notesService;
-  String get userEmail => AuthService.firebase().currentUser!.email!;
+  String get userEmail => AuthService.firebase().currentUser!.email;
   @override
   void initState() {
     _notesService = NotesService();
@@ -82,7 +81,8 @@ class _NotesViewState extends State<NotesView> {
                               await _notesService.deleteNote(id: note.id);
                             },
                             onTap: (note) {
-                              Navigator.of(context).pushNamed(newNoteRoute,arguments: note);
+                              Navigator.of(context)
+                                  .pushNamed(newNoteRoute, arguments: note);
                             },
                           );
                         } else {

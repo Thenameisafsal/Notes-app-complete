@@ -17,22 +17,23 @@ class _NewNoteViewState extends State<NewNoteView> {
   late final TextEditingController _textController;
 
   @override
-  void initState(){
+  void initState() {
     _notesService = NotesService();
     _textController = TextEditingController();
     super.initState();
   }
+
 // update db as the user types data
-  void _textControllerListener() async{
+  void _textControllerListener() async {
     final note = _note;
-    if(note == null){
+    if (note == null) {
       return;
     }
     final text = _textController.text;
     await _notesService.updateNote(note: note, text: text);
   }
 
-  void _setupTextControllerListener(){
+  void _setupTextControllerListener() {
     // refresh the listener
     _textController.removeListener(_textControllerListener);
     _textController.addListener(_textControllerListener);
@@ -41,7 +42,7 @@ class _NewNoteViewState extends State<NewNoteView> {
   Future<DataBaseNote> createOrGetExisitngNote(BuildContext context) async {
     final widgetNote = context.getArgument<DataBaseNote>();
     // update existing note
-    if(widgetNote!=null){
+    if (widgetNote != null) {
       _note = widgetNote;
       _textController.text = widgetNote.text;
       return widgetNote;
@@ -50,10 +51,12 @@ class _NewNoteViewState extends State<NewNoteView> {
     if (existingNote != null) {
       return existingNote;
     }
-    final user = AuthService.firebase().currentUser!; // crash if user doesn't exist
-    final email = user.email!;
+    final user =
+        AuthService.firebase().currentUser!; // crash if user doesn't exist
+    final email = user.email;
     final owner = await _notesService.getUser(email: email); // get the owner
-    final newNote =  await _notesService.createNote(owner: owner); // create the note
+    final newNote =
+        await _notesService.createNote(owner: owner); // create the note
     _note = newNote;
     return newNote;
   }
@@ -74,6 +77,7 @@ class _NewNoteViewState extends State<NewNoteView> {
       await _notesService.updateNote(note: note, text: text);
     }
   }
+
 // dispose the data and widgets
   @override
   void dispose() {
@@ -90,24 +94,22 @@ class _NewNoteViewState extends State<NewNoteView> {
         title: const Text("New Note"),
       ),
       body: FutureBuilder(
-        future: createOrGetExisitngNote(context),
-        builder: (context,snapshot){
-          switch(snapshot.connectionState){
-            case ConnectionState.done:
-              _setupTextControllerListener(); // start listening
-              return TextField(
-                controller: _textController,
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                decoration: const InputDecoration(
-                  hintText: "Enter your notes here"
-                ),
-              );
-            default:
-              return const CircularProgressIndicator();
-          }
-        }
-        ),
+          future: createOrGetExisitngNote(context),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.done:
+                _setupTextControllerListener(); // start listening
+                return TextField(
+                  controller: _textController,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  decoration:
+                      const InputDecoration(hintText: "Enter your notes here"),
+                );
+              default:
+                return const CircularProgressIndicator();
+            }
+          }),
     );
   }
 }

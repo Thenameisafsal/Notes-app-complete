@@ -285,7 +285,7 @@ class DataBaseNote {
   int get hashCode => id.hashCode;
 }
 
-const dbName = 'notes.db';
+const dbName = 'database.db';
 const noteTable = 'note';
 const userTable = 'user';
 const idColumn = 'id';
