@@ -44,6 +44,7 @@ dependencies:
   path: ^1.9.0
   firebase_core_web: ^2.18.1
   firebase_auth_web: ^5.13.1
+  share_plus: ^10.0.2
 
 dev_dependencies:
   flutter_test:
