@@ -3,6 +3,7 @@ import 'package:notes/services/auth/auth_exceptions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notes/services/auth/bloc/auth_bloc.dart';
 import 'package:notes/services/auth/bloc/auth_event.dart';
+import 'package:notes/services/auth/bloc/auth_state.dart';
 import 'package:notes/utilities/dialogs/error_dialog.dart';
 import 'package:notes/constants/routes.dart';
 
@@ -54,25 +55,30 @@ class _LoginViewState extends State<LoginView> {
             decoration:
                 const InputDecoration(hintText: "Enter your password here"),
           ),
-          TextButton(
-            onPressed: () async {
-              final email = _email.text;
-              final password = _password.text;
-              try {
-                // login event
+          BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) async {
+              if (state is AuthStateLoggedOut) {
+                // logged out because of exception
+                if (state.exception is UserNotFoundAuthException) {
+                  await showErrorDialog(context, "User not found!");
+                } else if (state.exception is InvalidPasswordAuthException) {
+                  await showErrorDialog(context, "Invalid email/  password!");
+                } else {
+                  await showErrorDialog(
+                      context, "Some error occurred, try again later.");
+                }
+              }
+            },
+            child: TextButton(
+              onPressed: () async {
+                final email = _email.text;
+                final password = _password.text;
                 context
                     .read<AuthBloc>()
                     .add(AuthEventLogIn(email: email, password: password));
-              } on InvalidPasswordAuthException {
-                await showErrorDialog(context, 'Invalid password');
-              } on UserNotFoundAuthException {
-                await showErrorDialog(
-                    context, 'User not found with provided credentials');
-              } on GenericAuthException {
-                await showErrorDialog(context, 'Some error has occurred');
-              }
-            },
-            child: const Text('Login'),
+              },
+              child: const Text('Login'),
+            ),
           ),
           TextButton(
             onPressed: () => {
