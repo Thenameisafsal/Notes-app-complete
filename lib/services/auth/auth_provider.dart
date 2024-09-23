@@ -1,10 +1,12 @@
 import 'package:notes/services/auth/auth_user.dart';
 
-abstract class AuthProvider{
-    AuthUser? get currentUser;
-    Future<AuthUser> login({required String email,required String password});
-    Future<AuthUser> createUser({required String email, required String password});
-    Future<void> logout();
-    Future<void> sendEmailVerification();
-    Future<void> startService();
+abstract class AuthProvider {
+  AuthUser? get currentUser;
+  Future<AuthUser> login({required String email, required String password});
+  Future<AuthUser> createUser(
+      {required String email, required String password});
+  Future<void> logout();
+  Future<void> sendEmailVerification();
+  Future<void> startService();
+  Future<void> sendPasswordResetMail({required String email});
 }
